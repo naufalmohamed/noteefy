@@ -22,8 +22,7 @@ def select_from_table():
 	
 @app.route("/")
 def index():
-	todo_list = select_from_table()
-	#print(todo_list)
+	#todo_list = select_from_table()
 	return render_template("base.html", todo_list = todo_list)
 	
 	
@@ -66,6 +65,6 @@ def todo_delete(todo_id):
 
 if __name__ == "__main__":
 
-	todo_create_table()
+	#todo_create_table()
 	#todo_add_to_table()
 	app.run(debug=True)
