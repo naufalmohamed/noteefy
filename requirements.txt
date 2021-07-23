@@ -1,7 +1,6 @@
 asgiref==3.4.1
 blinker==1.4
 brotli==1.0.9
-cdecimal==2.3
 chardet==4.0.0
 colorama==0.4.4
 contextvars==2.4
