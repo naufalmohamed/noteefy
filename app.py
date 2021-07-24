@@ -35,7 +35,14 @@ def index():
 	
 	
 @app.route("/add", methods=["POST"])
-def todo_add_to_table(username,password,database,hostname,port):
+def todo_add_to_table():
+	result = urlparse("postgres://qmnyuigfxkvneg:a46f13b306a3a3de3d4e7f373f65a258203661a682b624f49c0e21a79ca863f2@ec2-54-155-254-112.eu-west-1.compute.amazonaws.com:5432/dvv1uhocoo0e9")
+
+	username = result.username
+	password = result.password
+	database = result.path[1:]
+	hostname = result.hostname
+	port = result.port
 	title_ret= request.form.get("title")
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
