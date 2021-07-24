@@ -12,16 +12,18 @@ def parse():
 	database = result.path[1:]
 	hostname = result.hostname
 	port = result.port
-	return username, password, database, hostname, hostname, port
+	return username, password, database, hostname, port
 
-def todo_create_table(username,password,database,hostname,port):
+def todo_create_table():
+	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,status BOOLEAN NOT NULL);")
 	dbconn.commit()
 		
 	
-def select_from_table(username,password,database,hostname,port):
+def select_from_table():
+	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("SELECT * FROM todo_table;")
@@ -32,13 +34,13 @@ def select_from_table(username,password,database,hostname,port):
 	
 @app.route("/")
 def index():
-	todo_list = select_from_table(username,password,database,hostname,port)
+	todo_list = select_from_table()
 	return render_template("base.html", todo_list = todo_list)
 	
 	
 @app.route("/add", methods=["POST"])
 def todo_add_to_table():
-	username, password, database, hostname, hostname, port = parse()
+	username, password, database, hostname, port = parse()
 	title_ret= request.form.get("title")
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
@@ -49,7 +51,7 @@ def todo_add_to_table():
 	
 @app.route("/update/<int:todo_id>")
 def todo_update(todo_id):
-	username, password, database, hostname, hostname, port = parse()
+	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("""UPDATE todo_table SET status = %s WHERE id = %s;""",(True,todo_id))
@@ -59,7 +61,7 @@ def todo_update(todo_id):
 	
 @app.route("/update_not/<int:todo_id>")
 def todo_update_not(todo_id):
-	username, password, database, hostname, hostname, port = parse()
+	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("""UPDATE todo_table SET status = %s WHERE id = %s;""",(False,todo_id))
@@ -68,7 +70,8 @@ def todo_update_not(todo_id):
 	
 	
 @app.route("/delete/<int:todo_id>")
-def todo_delete(todo_id,username,password,database,hostname,port):
+def todo_delete(todo_id):
+	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("""DELETE from todo_table WHERE id = %s;""",[todo_id])
@@ -78,5 +81,5 @@ def todo_delete(todo_id,username,password,database,hostname,port):
 
 if __name__ == "__main__":
 
-	todo_create_table(username,password,database,hostname,port)
+	todo_create_table()
 	app.run(debug=True)
