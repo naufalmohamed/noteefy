@@ -18,11 +18,20 @@ def todo_create_table():
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,status BOOLEAN NOT NULL);")
+	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,status BOOLEAN NOT NULL,tags VARCHAR []);")
+	dbconn.commit()
+	
+	
+def todo_drop_table():
+	username, password, database, hostname, port = parse()
+	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
+	cursor = dbconn.cursor()
+	cursor.execute("DROP TABLE todo_table;")
 	dbconn.commit()
 		
 	
 def select_from_table():
+	title_ret= request.form.get("title")
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
@@ -42,11 +51,40 @@ def index():
 def todo_add_to_table():
 	username, password, database, hostname, port = parse()
 	title_ret= request.form.get("title")
+	tags_ret= request.form.get("tags")
+	tags = tags_ret.split(",")
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("""INSERT INTO todo_table (title, status) VALUES (%s,%s);""",(title_ret, False))
+	cursor.execute("""INSERT INTO todo_table (title, status, tags) VALUES (%s,%s,%s);""",(title_ret, False,tags))
 	dbconn.commit()
 	return redirect(url_for("index"))
+	
+	
+@app.route("/search", methods=["POST"])
+def todo_search_tags():
+	tag_ret= request.form.get("search")
+	todo_list = select_from_table()
+	tag_list = []
+	for todo in todo_list:
+		for tag in todo[3]:
+			if tag == tag_ret:
+				tag_list.append(todo)
+	
+	return render_template("search.html", tag_list = tag_list)
+		
+	
+@app.route("/search_tags/<tag>")
+def todo_search_tags_hash(tag):
+	todo_list = select_from_table()
+	tag_list = []
+
+	
+	for todo in todo_list:
+		for tagg in todo[3]:
+			if tagg == tag:
+				tag_list.append(todo)
+	
+	return render_template("search.html", tag_list = tag_list)	
 	
 	
 @app.route("/update/<int:todo_id>")
@@ -80,6 +118,6 @@ def todo_delete(todo_id):
 
 
 if __name__ == "__main__":
-
+	#todo_drop_table()
 	todo_create_table()
 	app.run(debug=True)

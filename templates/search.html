@@ -15,7 +15,7 @@
 
 <body>
 <div style = "margin-top: 50px;" class = "ui container">
-	<h1 class = "ui center aligned header">Todo WebApp</h1>
+	<h1 class = "ui center aligned header">Todo Search</h1>
 
 	<form class = "ui form" action = "/add" method="POST">
 		<div>
@@ -28,7 +28,7 @@
 		</div>
 	</form>
 	
-	<form class = "ui form" action = "/search" method="POST">
+	<form class = "ui form" action = "/" method="POST">
 		<div>
 			<label for="search">Search Bar</label>
 			<input type = "text" name = "search" placeholder = "Enter tag to search...">
@@ -38,11 +38,11 @@
 	</form>
 	
 	
-	{% for todo in todo_list %}
+	{% for todo in tag_list %}
 	<div class = "ui segment">
 		<p class = "ui big header"> {{ todo[1] }}</p><br>
 		<p>{% for tag in todo[3] %}
-		<a href = "/search_tags/{{ tag }}">#{{ tag }}</a><br>
+		<a href = "/search_tags/{{ todo[0] }}">#{{ tag }}</a><br>
 		{% endfor %}</p>
 		
 		{% if todo[2] == False %}
@@ -57,6 +57,7 @@
 		<a class = "ui red button" href = "/delete/{{ todo[0] }}">Delete Task</a>
 	</div>
 	{% endfor %}
+	<a href = "/">Go To Homepage</a>
 	
 </div>		
 </body>
