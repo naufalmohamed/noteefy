@@ -4,13 +4,15 @@ from urllib.parse import urlparse
 
 app = Flask(__name__)
 
-result = urlparse("postgres://qmnyuigfxkvneg:a46f13b306a3a3de3d4e7f373f65a258203661a682b624f49c0e21a79ca863f2@ec2-54-155-254-112.eu-west-1.compute.amazonaws.com:5432/dvv1uhocoo0e9")
 
-username = result.username
-password = result.password
-database = result.path[1:]
-hostname = result.hostname
-port = result.port
+def parse():
+	result = urlparse("postgres://qmnyuigfxkvneg:a46f13b306a3a3de3d4e7f373f65a258203661a682b624f49c0e21a79ca863f2@ec2-54-155-254-112.eu-west-1.compute.amazonaws.com:5432/dvv1uhocoo0e9")
+	username = result.username
+	password = result.password
+	database = result.path[1:]
+	hostname = result.hostname
+	port = result.port
+	return username, password, database, hostname, hostname, port
 
 def todo_create_table(username,password,database,hostname,port):
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
@@ -36,13 +38,7 @@ def index():
 	
 @app.route("/add", methods=["POST"])
 def todo_add_to_table():
-	result = urlparse("postgres://qmnyuigfxkvneg:a46f13b306a3a3de3d4e7f373f65a258203661a682b624f49c0e21a79ca863f2@ec2-54-155-254-112.eu-west-1.compute.amazonaws.com:5432/dvv1uhocoo0e9")
-
-	username = result.username
-	password = result.password
-	database = result.path[1:]
-	hostname = result.hostname
-	port = result.port
+	username, password, database, hostname, hostname, port = parse()
 	title_ret= request.form.get("title")
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
@@ -53,6 +49,7 @@ def todo_add_to_table():
 	
 @app.route("/update/<int:todo_id>")
 def todo_update(todo_id,username,password,database,hostname,port):
+	username, password, database, hostname, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("""UPDATE todo_table SET status = %s WHERE id = %s;""",(True,todo_id))
@@ -62,6 +59,7 @@ def todo_update(todo_id,username,password,database,hostname,port):
 	
 @app.route("/update_not/<int:todo_id>")
 def todo_update_not(todo_id):
+	username, password, database, hostname, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
 	cursor.execute("""UPDATE todo_table SET status = %s WHERE id = %s;""",(False,todo_id))
