@@ -48,7 +48,7 @@ def todo_add_to_table():
 	
 	
 @app.route("/update/<int:todo_id>")
-def todo_update(todo_id,username,password,database,hostname,port):
+def todo_update(todo_id):
 	username, password, database, hostname, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
