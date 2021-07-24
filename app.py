@@ -3,7 +3,6 @@ import psycopg2
 from urllib.parse import urlparse
 
 app = Flask(__name__)
-server = app.server
 
 result = urlparse("postgres://qmnyuigfxkvneg:a46f13b306a3a3de3d4e7f373f65a258203661a682b624f49c0e21a79ca863f2@ec2-54-155-254-112.eu-west-1.compute.amazonaws.com:5432/dvv1uhocoo0e9")
 
