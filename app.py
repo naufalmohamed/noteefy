@@ -123,6 +123,6 @@ def todo_delete(todo_id):
 
 
 if __name__ == "__main__":
-	todo_drop_table()
+	#todo_drop_table()
 	todo_create_table()
 	app.run(debug=True)
