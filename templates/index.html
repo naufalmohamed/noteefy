@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block main %}
 
 	<h1 class = "ui center aligned header">NotePad</h1>
@@ -12,26 +13,27 @@
 	
 	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a>
 	
+	{% for todo in todo_list %}
 	
-	{% for todo in tag_list %}
 	<div class = "ui segment">
-		<p class = "ui big header"> {{ todo[1] }}<br> {{ todo[4] }} </p><br>
+		<p class = "ui big header"> {{ todo[1] }} <br> {{ todo[4] }} </p><br>
 		<p>{% for tag in todo[3] %}
-		<a href = "/search_tags/{{ todo[0] }}">#{{ tag }}</a><br>
+		<a href = "/search_tags/{{ tag }}">#{{ tag }}</a><br>
 		{% endfor %}</p>
 		
 		{% if todo[2] == False %}
-			<span class = "ui grey label" >Not ReRead</span>
-					<a class = "ui green button" href = "/update/{{ todo[0] }}">Mark As Read</a>
+		<span class = "ui grey label" >Not ReRead</span>
+		<a class = "ui green button" href = "/update/{{ todo[0] }}">Mark As Read</a>
+		
 		{% else %}
-			<span class = "ui green label" >ReRead</span>
-					<a class = "ui grey button" href = "/update_not/{{ todo[0] }}">Mark As Unread</a>
+		<span class = "ui green label" >ReRead</span>
+		<a class = "ui grey button" href = "/update_not/{{ todo[0] }}">Mark As UnRead</a>
 		{% endif %}
 		
 
-		<a class = "ui red button" href = "/delete/{{ todo[0] }}">Delete Task</a>
+		<a class = "ui red button" href = "/delete/{{ todo[0] }}">Delete Note</a>
 	</div>
+	
 	{% endfor %}
-	<a href = "/">Go To Homepage</a>
 	
 {% endblock %}

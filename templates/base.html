@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  	<title>Todo WebApp</title>
+  	<title>NotePad</title>
 	
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
 
@@ -15,50 +15,12 @@
 
 <body>
 <div style = "margin-top: 50px;" class = "ui container">
-	<h1 class = "ui center aligned header">Todo WebApp</h1>
 
-	<form class = "ui form" action = "/add" method="POST">
-		<div>
-			<label for="title">Task At Hand</label>
-			<input type = "text" name = "title" placeholder = "Enter Something...">
-			<label for="tags">Enter Tags</label>
-			<input type = "text" name = "tags" placeholder = "Enter Tags Seperated by Comma (Ex: Tag1,Tag2)">
-			<br><br>
-			<button style = "text-aligign: center;" class = "ui blue button" type = "submit">ADD</button> 
-		</div>
-	</form>
-	
-	<form class = "ui form" action = "/search" method="POST">
-		<div>
-			<label for="search">Search Bar</label>
-			<input type = "text" name = "search" placeholder = "Enter tag to search...">
-			<br><br>
-			<button style = "text-aligign: center;" class = "ui blue button" type = "submit">SEARCH</button> 
-		</div>
-	</form>
-	
-	
-	{% for todo in todo_list %}
-	<div class = "ui segment">
-		<p class = "ui big header"> {{ todo[1] }}</p><br>
-		<p>{% for tag in todo[3] %}
-		<a href = "/search_tags/{{ tag }}">#{{ tag }}</a><br>
-		{% endfor %}</p>
+{% block main %}
 		
-		{% if todo[2] == False %}
-			<span class = "ui grey label" >Not Completed</span>
-					<a class = "ui green button" href = "/update/{{ todo[0] }}">Mark As Complete</a>
-		{% else %}
-			<span class = "ui green label" >Completed</span>
-					<a class = "ui grey button" href = "/update_not/{{ todo[0] }}">Mark As Inomplete</a>
-		{% endif %}
-		
+{% endblock %}		
 
-		<a class = "ui red button" href = "/delete/{{ todo[0] }}">Delete Task</a>
-	</div>
-	{% endfor %}
-	
-</div>		
+</div>	
 </body>
 </html>
 

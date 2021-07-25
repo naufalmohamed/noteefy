@@ -18,7 +18,7 @@ def todo_create_table():
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,status BOOLEAN NOT NULL,tags VARCHAR []);")
+	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,status BOOLEAN NOT NULL, tags VARCHAR [], description VARCHAR);")
 	dbconn.commit()
 	
 	
@@ -44,7 +44,11 @@ def select_from_table():
 @app.route("/")
 def index():
 	todo_list = select_from_table()
-	return render_template("base.html", todo_list = todo_list)
+	return render_template("index.html", todo_list = todo_list)
+	
+@app.route("/add_new")
+def add_new():
+	return render_template("note.html")
 	
 	
 @app.route("/add", methods=["POST"])
@@ -53,9 +57,10 @@ def todo_add_to_table():
 	title_ret= request.form.get("title")
 	tags_ret= request.form.get("tags")
 	tags = tags_ret.split(",")
+	description_ret= request.form.get("description")
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("""INSERT INTO todo_table (title, status, tags) VALUES (%s,%s,%s);""",(title_ret, False,tags))
+	cursor.execute("""INSERT INTO todo_table (title, status, tags, description) VALUES (%s,%s,%s,%s);""",(title_ret, False,tags,description_ret))
 	dbconn.commit()
 	return redirect(url_for("index"))
 	

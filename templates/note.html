@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block main %}
+	
+	<h1 class = "ui center aligned header">NotePad</h1>
+
+	<form class = "ui form" action = "/add" method="POST">
+		<div class="ui form">
+			<div class="field">
+    				<label for="tags">Note Title</label>
+				<input type = "text" name = "title" placeholder = "Enter Note Title">
+  			</div>
+  		
+			<div class="field">
+    				<label>Description</label>
+    				<textarea type = "text" name = "description" placeholder = "Enter Something..." rows="10" cols="10"></textarea>	    		
+  			</div>
+  		
+  			<div class="field">
+    				<label for="tags">Enter Tags</label>
+				<input type = "text" name = "tags" placeholder = "Enter Tags Seperated by Comma (Ex: Tag1,Tag2)">
+  			</div>
+  	</form>
+
+  			<a href = "/add">
+			<button class="ui green button">
+ 				Save
+			</button></add>
+			<a href = "/">
+			<button class="ui red button">
+  				Discard
+			</button></a>
+		</div>
+
+	<a href = "/">Go To Homepage</a>
+{% endblock %}
