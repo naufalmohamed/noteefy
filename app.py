@@ -5,6 +5,7 @@ import psycopg2
 from urllib.parse import urlparse
 import datetime
 from psycopg2 import sql
+import function
 
 
 from auth_decorator import login_required
@@ -44,7 +45,7 @@ def parse():
 def login():
     google = oauth.create_client('google')  
     redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect('http://noteefy.herokuapp.com/profile')
+    return google.authorize_redirect(redirect_uri)
 
 
 @app.route('/authorize')
