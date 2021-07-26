@@ -1,9 +1,33 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from authlib.integrations.flask_client import OAuth
+import os
 import psycopg2 
 from urllib.parse import urlparse
 import datetime
+from psycopg2 import sql
+
+
+from auth_decorator import login_required
 
 app = Flask(__name__)
+app.secret_key = "APP_SECRET_KEY"
+app.config['SESSION_COOKIE_NAME'] = 'google-login-session'
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)
+
+
+oauth = OAuth(app)
+google = oauth.register(
+    name='google', 
+    client_id="538430542715-7kth3mlrhg9p72e9pqoqinnr80424crp.apps.googleusercontent.com",
+    client_secret="ICRfDwSndb0Hgf6mf2gdLXsg",
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    access_token_params=None,
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_params=None,
+    api_base_url='https://www.googleapis.com/oauth2/v1/',
+    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo', 
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 
 def parse():
@@ -15,37 +39,53 @@ def parse():
 	port = result.port
 	return username, password, database, hostname, port
 
-def todo_create_table():
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,date VARCHAR, tags VARCHAR [], description VARCHAR);")
-	dbconn.commit()
-	
-	
-def todo_drop_table():
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute("DROP TABLE todo_table;")
-	dbconn.commit()
 		
-	
-def select_from_table():
-	title_ret= request.form.get("title")
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute("SELECT * FROM todo_table;")
-	todo_list = cursor.fetchall()
-	dbconn.commit()
-	return todo_list
+@app.route('/login')
+def login():
+    google = oauth.create_client('google')  
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect('http://noteefy.herokuapp.com/profile')
+
+
+@app.route('/authorize')
+def authorize():
+    google = oauth.create_client('google')  
+    token = google.authorize_access_token() 
+    resp = google.get('userinfo')  
+    user_info = resp.json()
+    user = oauth.google.userinfo()  
+    session['profile'] = user_info
+    session.permanent = True  
+    return redirect('/')
+
+
+@app.route('/logout')
+def logout():
+    for key in list(session.keys()):
+        session.pop(key)
+    return redirect('/')
 	
 	
 @app.route("/")
 def index():
-	todo_list = select_from_table()
-	return render_template("index.html", todo_list = todo_list)
+	return "<h1>Welcome To NoteeFy</h1> <br> <a href = '/login'>LOGIN</a>"
+	
+	
+@app.route("/profile")
+@login_required
+def profile():
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
+	#print(email)
+	#email = dict(session)['profile']['email']
+	username, password, database, hostname, port = parse()
+	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
+	cursor = dbconn.cursor()
+	cursor.execute(f"CREATE TABLE IF NOT EXISTS {email_ret[0]} ( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,date VARCHAR, tags VARCHAR [], description VARCHAR);")
+	cursor.execute(f"SELECT * FROM {email_ret[0]};")
+	todo_list = cursor.fetchall()
+	dbconn.commit()
+	return render_template("index.html", todo_list = todo_list, email=email)
 	
 @app.route("/add_new")
 def add_new():
@@ -54,6 +94,8 @@ def add_new():
 	
 @app.route("/add", methods=["POST"])
 def todo_add_to_table():
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
 	username, password, database, hostname, port = parse()
 	title_ret= request.form.get("title")
 	tags_ret= request.form.get("tags")
@@ -62,14 +104,14 @@ def todo_add_to_table():
 	date = datetime.date.today()
 	
 	if len(title_ret) == 0 and len(description_ret) == 0:
-			return redirect(url_for("index"))
+			return redirect(url_for("profile"))
 			
 	else:		
 		dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 		cursor = dbconn.cursor()
-		cursor.execute("""INSERT INTO todo_table (title, date, tags, description) VALUES (%s,%s,%s,%s);""",(title_ret,date,tags,description_ret))
+		cursor.execute(f"""INSERT INTO {email_ret[0]} (title, date, tags, description) VALUES (%s,%s,%s,%s);""",(title_ret,date,tags,description_ret))
 		dbconn.commit()
-		return redirect(url_for("index"))
+		return redirect(url_for("profile"))
 	
 	
 @app.route("/search", methods=["POST"])
@@ -111,6 +153,8 @@ def todo_update(todo_id):
 	
 @app.route("/update_old/<int:row_id>", methods = ["POST"])
 def todo_update_old(row_id):
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
 	todo_id = row_id
 	title_ret= request.form.get("title")
 	tags_ret= request.form.get("tags")
@@ -120,25 +164,27 @@ def todo_update_old(row_id):
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("""UPDATE todo_table SET title = %s WHERE id = %s;""",(title_ret,todo_id))
-	cursor.execute("""UPDATE todo_table SET description = %s WHERE id = %s;""",(description_ret,todo_id))
-	cursor.execute("""UPDATE todo_table SET tags = %s WHERE id = %s;""",(tags,todo_id))
-	cursor.execute("""UPDATE todo_table SET date = %s WHERE id = %s;""",(date,todo_id))
+	cursor.execute(f"""UPDATE {email_ret[0]} SET title = %s WHERE id = %s;""",(title_ret,todo_id))
+	cursor.execute(f"""UPDATE {email_ret[0]} SET description = %s WHERE id = %s;""",(description_ret,todo_id))
+	cursor.execute(f"""UPDATE {email_ret[0]} SET tags = %s WHERE id = %s;""",(tags,todo_id))
+	cursor.execute(f"""UPDATE {email_ret[0]} SET date = %s WHERE id = %s;""",(date,todo_id))
 	dbconn.commit()
 	return redirect(url_for("index"))
 	
 	
 @app.route("/delete/<int:todo_id>")
 def todo_delete(todo_id):
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("""DELETE from todo_table WHERE id = %s;""",[todo_id])
+	cursor.execute(f"""DELETE from {email_ret[0]} WHERE id = %s;""",[todo_id])
 	dbconn.commit()
-	return redirect(url_for("index"))
+	return redirect(url_for("profile"))
 
 
 if __name__ == "__main__":
 	#todo_drop_table()
-	todo_create_table()
+	#todo_create_table()
 	app.run(debug=True)
