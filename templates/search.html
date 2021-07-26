@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block main %}
 
-	<h1 class = "ui center aligned header">NotePad</h1>
+	<h1 class = "ui center aligned header">Noteefy</h1>
 	
 	<form class = "ui form" action = "/search" method="POST">
 		<div class="ui icon input">
@@ -15,23 +15,23 @@
 	
 	{% for todo in tag_list %}
 	<div class = "ui segment">
-		<p class = "ui big header"> {{ todo[1] }}<br> {{ todo[4] }} </p><br>
+		<p class = "ui big header"> {{ todo[1] }}</p><br> 
+		<p>{{ todo[4] }} </p><br>
 		<p>{% for tag in todo[3] %}
 		<a href = "/search_tags/{{ todo[0] }}">#{{ tag }}</a><br>
 		{% endfor %}</p>
 		
-		{% if todo[2] == False %}
-			<span class = "ui grey label" >Not ReRead</span>
-					<a class = "ui green button" href = "/update/{{ todo[0] }}">Mark As Read</a>
-		{% else %}
-			<span class = "ui green label" >ReRead</span>
-					<a class = "ui grey button" href = "/update_not/{{ todo[0] }}">Mark As Unread</a>
-		{% endif %}
+		
+			<span class = "ui grey label" ><i class="calendar check outline icon"></i>{{ todo[2] }}</span>
+					<a class = "ui green button" href = "/update/{{ todo[0] }}"><center><i class="edit icon"></i></center></a>
+		
 		
 
-		<a class = "ui red button" href = "/delete/{{ todo[0] }}">Delete Task</a>
+		<a class = "ui red button" href = "/delete/{{ todo[0] }}"><center><i class="trash icon"></i></center></a>
 	</div>
 	{% endfor %}
-	<a href = "/">Go To Homepage</a>
+	<button class="ui yellow button">
+  				<a href = "/"><i class="home icon"></i></a>
+	</button></a>
 	
 {% endblock %}

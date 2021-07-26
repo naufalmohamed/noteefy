@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import psycopg2 
 from urllib.parse import urlparse
+import datetime
 
 app = Flask(__name__)
 
@@ -18,7 +19,7 @@ def todo_create_table():
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,status BOOLEAN NOT NULL, tags VARCHAR [], description VARCHAR);")
+	cursor.execute("CREATE TABLE IF NOT EXISTS todo_table( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,date VARCHAR, tags VARCHAR [], description VARCHAR);")
 	dbconn.commit()
 	
 	
@@ -58,11 +59,17 @@ def todo_add_to_table():
 	tags_ret= request.form.get("tags")
 	tags = tags_ret.split(",")
 	description_ret= request.form.get("description")
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute("""INSERT INTO todo_table (title, status, tags, description) VALUES (%s,%s,%s,%s);""",(title_ret, False,tags,description_ret))
-	dbconn.commit()
-	return redirect(url_for("index"))
+	date = datetime.date.today()
+	
+	if len(title_ret) == 0 and len(description_ret) == 0:
+			return redirect(url_for("index"))
+			
+	else:		
+		dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
+		cursor = dbconn.cursor()
+		cursor.execute("""INSERT INTO todo_table (title, date, tags, description) VALUES (%s,%s,%s,%s);""",(title_ret,date,tags,description_ret))
+		dbconn.commit()
+		return redirect(url_for("index"))
 	
 	
 @app.route("/search", methods=["POST"])
@@ -94,20 +101,29 @@ def todo_search_tags_hash(tag):
 	
 @app.route("/update/<int:todo_id>")
 def todo_update(todo_id):
+	todo_list = select_from_table()
+	for todo in todo_list:
+		if todo[0] == todo_id:
+			row = todo
+	
+	return render_template("update.html", row = row)
+	
+	
+@app.route("/update_old/<int:row_id>", methods = ["POST"])
+def todo_update_old(row_id):
+	todo_id = row_id
+	title_ret= request.form.get("title")
+	tags_ret= request.form.get("tags")
+	tags = tags_ret.split(",")
+	description_ret= request.form.get("description")
+	date = datetime.date.today()
 	username, password, database, hostname, port = parse()
 	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
 	cursor = dbconn.cursor()
-	cursor.execute("""UPDATE todo_table SET status = %s WHERE id = %s;""",(True,todo_id))
-	dbconn.commit()
-	return redirect(url_for("index"))
-	
-	
-@app.route("/update_not/<int:todo_id>")
-def todo_update_not(todo_id):
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute("""UPDATE todo_table SET status = %s WHERE id = %s;""",(False,todo_id))
+	cursor.execute("""UPDATE todo_table SET title = %s WHERE id = %s;""",(title_ret,todo_id))
+	cursor.execute("""UPDATE todo_table SET description = %s WHERE id = %s;""",(description_ret,todo_id))
+	cursor.execute("""UPDATE todo_table SET tags = %s WHERE id = %s;""",(tags,todo_id))
+	cursor.execute("""UPDATE todo_table SET date = %s WHERE id = %s;""",(date,todo_id))
 	dbconn.commit()
 	return redirect(url_for("index"))
 	
