@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 
 def parse():
-	result = urlparse("postgres://qmnyuigfxkvneg:a46f13b306a3a3de3d4e7f373f65a258203661a682b624f49c0e21a79ca863f2@ec2-54-155-254-112.eu-west-1.compute.amazonaws.com:5432/dvv1uhocoo0e9")
+	result = urlparse("postgres://kbavvbvdsgyxem:b87e8fa4e189c9d220d887fe487e0d0bd0a01e8af76dab2e0e2820766a91d1d4@ec2-52-1-20-236.compute-1.amazonaws.com:5432/d7dv0rn1807k9k")
 	username = result.username
 	password = result.password
 	database = result.path[1:]
