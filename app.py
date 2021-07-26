@@ -45,7 +45,7 @@ def parse():
 def login():
     google = oauth.create_client('google')  
     redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect("http://noteefy.herokuapp.com/profile")
+    return google.authorize_redirect("https://noteefy.herokuapp.com/profile")
 
 
 @app.route('/authorize')
