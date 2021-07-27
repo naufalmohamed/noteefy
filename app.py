@@ -45,7 +45,7 @@ def parse():
 def login():
     google = oauth.create_client('google')  
     redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect(redirect uri)
+    return google.authorize_redirect(redirect_uri)
 
 
 @app.route('/authorize')
@@ -69,7 +69,7 @@ def logout():
 	
 @app.route("/")
 def index():
-	return "<h1>Welcome To NoteeFy</h1> <br> <a href = '/login'>LOGIN</a>"
+	return "<h1>Welcome To NoteeFy</h1> <br> <a href = '/login'>LOGIN</a><br><a href = '/profile'>Profile</a>"
 	
 	
 @app.route("/profile")
