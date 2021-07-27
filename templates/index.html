@@ -1,36 +1,15 @@
-{% extends 'base.html' %}
 
-{% block main %}
+	
 
-	<h1 class = "ui center aligned header">Noteefy</h1>
-	
-	<form class = "ui form" action = "/search" method="POST">
-		<div class="ui icon input">
-  			<input type="text" name = "search" placeholder="Search...">
-		</div>	
-		
-	</form><br>
-	
-	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a>
-	
-	{% for todo in todo_list %}
-	
-	<div class = "ui segment">
-		<p class = "ui big header"> {{ todo[1] }} </p><br> 
-		<p>{{ todo[4] }} </p><br>
-		<p>{% for tag in todo[3] %}
-		<a href = "/search_tags/{{ tag }}">#{{ tag }}</a><br>
-		{% endfor %}</p>
-		
-		<span class = "ui grey label" ><i class="calendar check outline icon"></i>{{ todo[2] }}</span>
-		<a class = "ui green button" href = "/update/{{ todo[0] }}"><center><i class="edit icon"></i></center></a>
-		
+<div>
+  <div class = "huge header">
+    <h1 style = "font-family: 'Dancing Script', cursive;">Noteefy</h1>
+  </div>
+  <div>
+    <h1>Welcome to Noteefy!</h1>
+    <hr>
+    <p><a href = '/login'>Click here to Login with Google</a></p>
+  </div>
+</div>
 
 
-		<a class = "ui red button" href = "/delete/{{ todo[0] }}"><center><i class="trash icon"></i></center></a>
-	</div>
-	
-	{% endfor %}
-	<p>{{ email }}</p><a href = "/logout">LogOut</a>
-	
-{% endblock %}
