@@ -73,7 +73,6 @@ def index():
 	
 	
 @app.route("/profile")
-@login_required
 def profile():
 	email = dict(session)['profile']['email']
 	email_ret = email.split("@")
