@@ -57,7 +57,7 @@ def authorize():
     user = oauth.google.userinfo()  
     session['profile'] = user_info
     session.permanent = True  
-    return redirect('/')
+    return redirect('/profile')
 
 
 @app.route('/logout')
@@ -117,8 +117,16 @@ def todo_add_to_table():
 	
 @app.route("/search", methods=["POST"])
 def todo_search_tags():
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
 	tag_ret= request.form.get("search")
-	todo_list = select_from_table()
+	title_ret= request.form.get("title")
+	username, password, database, hostname, port = parse()
+	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
+	cursor = dbconn.cursor()
+	cursor.execute(f"SELECT * FROM {email_ret[0]};")
+	todo_list = cursor.fetchall()
+	dbconn.commit()
 	tag_list = []
 	for todo in todo_list:
 		for tag in todo[3]:
@@ -130,7 +138,16 @@ def todo_search_tags():
 	
 @app.route("/search_tags/<tag>")
 def todo_search_tags_hash(tag):
-	todo_list = select_from_table()
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
+	tag_ret= request.form.get("search")
+	title_ret= request.form.get("title")
+	username, password, database, hostname, port = parse()
+	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
+	cursor = dbconn.cursor()
+	cursor.execute(f"SELECT * FROM {email_ret[0]};")
+	todo_list = cursor.fetchall()
+	dbconn.commit()
 	tag_list = []
 
 	
@@ -143,8 +160,18 @@ def todo_search_tags_hash(tag):
 	
 	
 @app.route("/update/<int:todo_id>")
+@login_required
 def todo_update(todo_id):
-	todo_list = select_from_table()
+	email = dict(session)['profile']['email']
+	email_ret = email.split("@")
+	tag_ret= request.form.get("search")
+	title_ret= request.form.get("title")
+	username, password, database, hostname, port = parse()
+	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
+	cursor = dbconn.cursor()
+	cursor.execute(f"SELECT * FROM {email_ret[0]};")
+	todo_list = cursor.fetchall()
+	dbconn.commit()
 	for todo in todo_list:
 		if todo[0] == todo_id:
 			row = todo
@@ -153,6 +180,7 @@ def todo_update(todo_id):
 	
 	
 @app.route("/update_old/<int:row_id>", methods = ["POST"])
+@login_required
 def todo_update_old(row_id):
 	email = dict(session)['profile']['email']
 	email_ret = email.split("@")
@@ -170,7 +198,7 @@ def todo_update_old(row_id):
 	cursor.execute(f"""UPDATE {email_ret[0]} SET tags = %s WHERE id = %s;""",(tags,todo_id))
 	cursor.execute(f"""UPDATE {email_ret[0]} SET date = %s WHERE id = %s;""",(date,todo_id))
 	dbconn.commit()
-	return redirect(url_for("index"))
+	return redirect(url_for("profile"))
 	
 	
 @app.route("/delete/<int:todo_id>")
