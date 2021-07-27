@@ -67,12 +67,13 @@ def logout():
     return redirect('/')
 	
 	
-@app.route("/")
+@app.route('/')
 def index():
 	return render_template("index.html")
 	
 	
-@app.route("/profile")
+@app.route('/profile')
+@login_required
 def profile():
 	email = dict(session)['profile']['email']
 	email_ret = email.split("@")
@@ -85,7 +86,7 @@ def profile():
 	cursor.execute(f"SELECT * FROM {email_ret[0]};")
 	todo_list = cursor.fetchall()
 	dbconn.commit()
-	return render_template("index.html", todo_list = todo_list, email=email)
+	return render_template("profile.html", todo_list = todo_list, email=email)
 	
 @app.route("/add_new")
 def add_new():
