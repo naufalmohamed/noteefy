@@ -1,36 +1,34 @@
 {% extends 'base.html' %}
 
 {% block main %}
-	
-	<h1 class = "ui center aligned header">Noteefy</h1>
 
 	<form class = "ui form" action = "/update_old/{{ row[0] }}" method = "POST"">
 		<div class="ui form">
 			<div class="field">
-    				<label>Note Title</label>
+    				<label id = "white">Note Title</label>
     				<textarea type = "text" name = "title" placeholder = "Enter Note Title" rows="1" cols="1">{{ row[1] }}</textarea>	    		
   			</div>
   		
 			<div class="field">
-    				<label>Description</label>
+    				<label id = "white">Description</label>
     				<textarea type = "text" name = "description" placeholder = "Enter Something..." rows="10" cols="10">{{ row[4] }}</textarea>	    		
   			</div>
   		
   			<div class="field">
-    				<label>Enter Tags</label>
+    				<label id = "white">Enter Tags</label>
     				<textarea type = "text" name = "tags" placeholder = "Enter Tags Seperated by Comma (Ex: Tag1,Tag2)" rows="1" cols="1">{{ ",".join(row[3]) }}</textarea>	    		
   			</div>
   	</form>
 
   			<a href = "/update_old/{{ row[0] }}">
-			<button class="ui green button">
+			<button class="ui inverted green button">
  				Update
 			</button></add>
 			<a href = "/profile">
-			<button class="ui red button">
+			<button class="ui inverted red button">
   				Discard
 			</button></a>
-			<button class="ui yellow button">
+			<button class="ui inverted yellow button">
   				<a href = "/profile"><i class="home icon"></i></a>
 			</button></a>
 		</div>

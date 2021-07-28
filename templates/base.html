@@ -8,18 +8,36 @@
   	<title>Noteefy</title>
 	
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
 
 	<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
 	<style>		
 	body {
-  		background-color: teal;
+  		background-color: #0A232A;
 		}
+		
+	#white {
+		color: #FAFAFA;	
+		}
+	#white_title {
+		color: #FAFAFA;
+		font-family: 'Special Elite', cursive;
+		}
+	#div_int {
+		background-color: #032C30;	
+		}
+	img {
+  		border-radius: 50%;
+}
 	</style>
 
 </head>
 
 <body>
 <div style = "margin-top: 50px;" class = "ui container">
+	<h1 class = "ui center aligned header" id = "white_title">Noteefy.</h1>
 
 {% block main %}
 		

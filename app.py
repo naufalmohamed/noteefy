@@ -76,6 +76,7 @@ def index():
 @login_required
 def profile():
 	email = dict(session)['profile']['email']
+	pic_info =  dict(session)['profile']['picture']
 	email_ret = email.split("@")
 	#print(email)
 	#email = dict(session)['profile']['email']
@@ -86,7 +87,7 @@ def profile():
 	cursor.execute(f"SELECT * FROM {email_ret[0]};")
 	todo_list = cursor.fetchall()
 	dbconn.commit()
-	return render_template("profile.html", todo_list = todo_list, email=email)
+	return render_template("profile.html", todo_list = todo_list, email=email, pic_info=pic_info)
 	
 @app.route("/add_new")
 def add_new():
@@ -117,6 +118,7 @@ def todo_add_to_table():
 	
 @app.route("/search", methods=["POST"])
 def todo_search_tags():
+	pic_info =  dict(session)['profile']['picture']
 	email = dict(session)['profile']['email']
 	email_ret = email.split("@")
 	tag_ret= request.form.get("search")
@@ -133,7 +135,7 @@ def todo_search_tags():
 			if tag == tag_ret:
 				tag_list.append(todo)
 	
-	return render_template("search.html", tag_list = tag_list)
+	return render_template("search.html", tag_list = tag_list,email=email,pic_info=pic_info)
 		
 	
 @app.route("/search_tags/<tag>")
