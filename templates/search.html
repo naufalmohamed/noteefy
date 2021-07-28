@@ -7,9 +7,18 @@
 		</div>	
 		
 	</form><br>
-	<span class = "ui grey label" >Welcome {{ email }} </span> <img src={{pic_info}} alt="Avatar" style="width:30px" align="right"><br><br>
+	<a class="ui label">
+  	<img class="ui right spaced avatar image" src="{{ pic_info }}">
+  	Welcome, {{name_info}}
+	</a> 
 	
-	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a>
+	<button class="ui inverted pink button" style="float:right;"><a href = "/logout" id="white">Log Out <i class="sign-out icon"></i></a></button>
+	<button class="ui inverted purple button" style="float:right;">
+  		<a href = "/profile" id="white">Get Back Home <i class="home icon" style="color:white;"></i></a>
+	</button>
+	<br><br>
+	
+	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a><br>
 	
 	
 	{% for todo in tag_list %}
@@ -29,9 +38,5 @@
 		<a class = "ui inverted red button" href = "/delete/{{ todo[0] }}"><center><i class="trash icon"></i></center></a>
 	</div>
 	{% endfor %}
-	<button class="ui inverted yellow button">
-  		<a href = "/profile"><i class="home icon"></i></a>
-	</button></a>
-	<button class="ui inverted pink button"><a href = "/logout" id="white">Log Out <i class="sign-out icon"></i></a></button>
 	
 {% endblock %}

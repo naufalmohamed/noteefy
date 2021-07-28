@@ -8,9 +8,13 @@
 		</div>	
 		
 	</form><br>
-	<span class = "ui grey label" >Welcome {{ email }} </span> <img src={{pic_info}} alt="Avatar" style="width:30px" align="right"><br><br>
+	<a class="ui label">
+  	<img class="ui right spaced avatar image" src="{{ pic_info }}">
+  	Welcome, {{name_info}}
+	</a> 
+	<button class="ui inverted pink button" align="right" style="float:right;"><a href = "/logout" id="white">Log Out <i class="sign-out icon"></i></a></button><br><br>
 	
-	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a>
+	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a><br>
 	
 	{% for todo in todo_list %}
 	
@@ -30,8 +34,5 @@
 	</div>
 	
 	{% endfor %}
-	<button class="ui inverted pink button"><a href = "/logout" id="white">Log Out <i class="sign-out icon"></i></a></button>
-	
-	{{ info }}
 	
 {% endblock %}
