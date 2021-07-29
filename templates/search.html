@@ -1,25 +1,26 @@
 {% extends 'base.html' %}
 {% block main %}
 	
+	
+	<a class="ui label">
+  	<img class="ui right spaced avatar image" src="{{ pic_info }}">
+  	the name is, {{name_info}}
+	</a> 
+	
+	<a href = "/logout" id="white"><button class="ui inverted pink button" style="float:right;">Get Kicked Out <i class="sign-out icon"></i></button></a>
+	<a href = "/profile" id="white"><button class="ui inverted purple button" style="float:right;">
+  		Get Back Home 
+	</button></a>
+	<br><br>
+	
+	<a href = "/add_new"><button class="fluid ui button">Scribble Something New</button></a><br>
+	
 	<form class = "ui form" action = "/search" method="POST">
 		<div class="ui icon input">
-  			<input type="text" name = "search" placeholder="Search for a tag...">
+  			<input type="text" name = "search" placeholder="have a tag in mind?">
 		</div>	
 		
 	</form><br>
-	<a class="ui label">
-  	<img class="ui right spaced avatar image" src="{{ pic_info }}">
-  	Welcome, {{name_info}}
-	</a> 
-	
-	<button class="ui inverted pink button" style="float:right;"><a href = "/logout" id="white">Log Out <i class="sign-out icon"></i></a></button>
-	<button class="ui inverted purple button" style="float:right;">
-  		<a href = "/profile" id="white">Get Back Home <i class="home icon" style="color:white;"></i></a>
-	</button>
-	<br><br>
-	
-	<a href = "/add_new"><button class="fluid ui button">Add New Note</button></a><br>
-	
 	
 	{% for todo in tag_list %}
 	<div class = "ui segment" id="div_int">

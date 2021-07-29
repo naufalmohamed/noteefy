@@ -200,7 +200,6 @@ def todo_update_old(row_id):
 	cursor.execute(f"""UPDATE {email_ret[0]} SET title = %s WHERE id = %s;""",(title_ret,todo_id))
 	cursor.execute(f"""UPDATE {email_ret[0]} SET description = %s WHERE id = %s;""",(description_ret,todo_id))
 	cursor.execute(f"""UPDATE {email_ret[0]} SET tags = %s WHERE id = %s;""",(tags,todo_id))
-	cursor.execute(f"""UPDATE {email_ret[0]} SET date = %s WHERE id = %s;""",(date,todo_id))
 	dbconn.commit()
 	return redirect(url_for("profile"))
 	

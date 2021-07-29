@@ -18,18 +18,15 @@
     				<label id = "white">Enter Tags</label>
     				<textarea type = "text" name = "tags" placeholder = "Enter Tags Seperated by Comma (Ex: Tag1,Tag2)" rows="1" cols="1">{{ ",".join(row[3]) }}</textarea>	    		
   			</div>
-  
+  	</form>
 
   			<a href = "/update_old/{{ row[0] }}">
-			<button class="ui inverted green button">
- 				Update
-			</button></add></form>
-			<a href = "/profile">
-			<button class="ui inverted red button">
-  				Discard
+			<button class="ui inverted green button" id = "white">
+ 				Noteefy the new stuff
 			</button></a>
-			<button class="ui inverted purple button">
-  				<a href = "/profile"><i class="home icon" style="color:white;"></i></a>
+			<a href = "/profile">
+			<button class="ui inverted red button" id = "white">
+  				Keep the old stuff
 			</button></a>
 		</div>
 		
