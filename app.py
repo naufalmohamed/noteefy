@@ -142,6 +142,8 @@ def todo_search_tags():
 	
 @app.route("/search_tags/<tag>")
 def todo_search_tags_hash(tag):
+	name_info = dict(session)['profile']['name']
+	pic_info =  dict(session)['profile']['picture']
 	email = dict(session)['profile']['email']
 	email_ret = email.split("@")
 	tag_ret= request.form.get("search")
@@ -160,7 +162,7 @@ def todo_search_tags_hash(tag):
 			if tagg == tag:
 				tag_list.append(todo)
 	
-	return render_template("search.html", tag_list = tag_list)	
+	return render_template("search.html", tag_list = tag_list,pic_info=pic_info,name_info=name_info)	
 	
 	
 @app.route("/update/<int:todo_id>")
