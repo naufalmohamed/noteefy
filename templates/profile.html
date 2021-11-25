@@ -22,7 +22,7 @@
 	
 	<div class = "ui segment" id="div_int">
 		<p class = "ui big header" id = "white"> {{ todo[1] }} </p><br> 
-		<p id = "white">{{ todo[4] }} </p><br>
+		<pre><p id = "white">{{ todo[4] }} </p></pre><br>
 		<p id = "white">{% for tag in todo[3] %}
 		<a href = "/search_tags/{{ tag }}" id = "white">#{{ tag }}</a><br>
 		{% endfor %}</p>

@@ -122,7 +122,7 @@ def todo_search_tags():
 	name_info = dict(session)['profile']['name']
 	pic_info =  dict(session)['profile']['picture']
 	email = dict(session)['profile']['email']
-	email_ret = email.split("@")
+	email_ret = email.split("@") 
 	tag_ret= request.form.get("search")
 	title_ret= request.form.get("title")
 	username, password, database, hostname, port = parse()
