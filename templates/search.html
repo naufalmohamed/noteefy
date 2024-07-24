@@ -4,7 +4,7 @@
 	
 	<a class="ui label">
   	<img class="ui right spaced avatar image" src="{{ pic_info }}">
-  	the name is, {{name_info}}
+  	the name is, {{user[0]}}
 	</a> 
 	
 	<a href = "/logout" id="white"><button class="ui inverted pink button" style="float:right;">Get Kicked Out <i class="sign-out icon"></i></button></a>
@@ -24,14 +24,14 @@
 	
 	{% for todo in tag_list %}
 	<div class = "ui segment" id="div_int">
-		<p class = "ui big header" id="white"> {{ todo[1] }}</p><br> 
-		<pre><p id="white">{{ todo[4] }} </p></pre><br>
-		<p id="white">{% for tag in todo[3] %}
-		<a href = "/search_tags/{{ todo[0] }}" id="white">#{{ tag }}</a><br>
+		<p class = "ui big header" id="white"> {{ todo[0] }}</p><br> 
+		<pre><p id="white">{{ todo[3] }} </p></pre><br>
+		<p id="white">{% for tag in todo[2] %}
+		<a href = "/search_tags/{{ tag }}" id="white">#{{ tag }}</a><br>
 		{% endfor %}</p>
 		
 		
-			<span class = "ui teal label" ><i class="calendar check outline icon"></i>{{ todo[2] }}</span>
+			<span class = "ui teal label" ><i class="calendar check outline icon"></i>{{ todo[1] }}</span>
 					<a class = "ui inverted green button" href = "/update/{{ todo[0] }}"><center><i class="edit icon"></i></center></a>
 		
 		
