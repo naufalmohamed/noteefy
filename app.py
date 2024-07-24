@@ -1,224 +1,207 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from authlib.integrations.flask_client import OAuth
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+import psycopg2
 import os
-import psycopg2 
 from urllib.parse import urlparse
 import datetime
-from psycopg2 import sql
-import function
-
-
-from auth_decorator import login_required
+import hashlib
+import os
 
 app = Flask(__name__)
-app.secret_key = "APP_SECRET_KEY"
-app.config['SESSION_COOKIE_NAME'] = 'google-login-session'
+# app.secret_key = os.getenv("APP_SECRET_KEY")
+app.secret_key = 'SECRET_KEY'
+app.config['SESSION_COOKIE_NAME'] = 'login-session'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)
 
+def hash_password(password):
+    salt = os.urandom(16)
+    return salt + hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
 
-oauth = OAuth(app)
-google = oauth.register(
-    name='google', 
-    client_id="538430542715-7kth3mlrhg9p72e9pqoqinnr80424crp.apps.googleusercontent.com",
-    client_secret="ICRfDwSndb0Hgf6mf2gdLXsg",
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    access_token_params=None,
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-    authorize_params=None,
-    api_base_url='https://www.googleapis.com/oauth2/v1/',
-    userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo', 
-    client_kwargs={'scope': 'openid email profile'},
-)
-
+def verify_password(stored_password, provided_password):
+    salt = stored_password[:16]
+    stored_key = stored_password[16:]
+    provided_key = hashlib.pbkdf2_hmac('sha256', provided_password.encode(), salt, 100000)
+    return bytes(stored_key) == provided_key
 
 def parse():
-	result = urlparse("postgres://kbavvbvdsgyxem:b87e8fa4e189c9d220d887fe487e0d0bd0a01e8af76dab2e0e2820766a91d1d4@ec2-52-1-20-236.compute-1.amazonaws.com:5432/d7dv0rn1807k9k")
-	username = result.username
-	password = result.password
-	database = result.path[1:]
-	hostname = result.hostname
-	port = result.port
-	return username, password, database, hostname, port
+    result = urlparse("postgres://noteefy_user:noteefy_password@localhost:5432/noteefy")
+    username = result.username
+    password = result.password
+    database = result.path[1:]
+    hostname = result.hostname
+    port = result.port
+    return username, password, database, hostname, port
 
-		
-@app.route('/login')
+def get_db_connection():
+    username, password, database, hostname, port = parse()
+    return psycopg2.connect(database=database, user=username, password=password, host=hostname, port=port)
+
+def execute_query(query, params=()):
+    with get_db_connection() as dbconn:
+        with dbconn.cursor() as cursor:
+            cursor.execute(query, params)
+            dbconn.commit()
+            return cursor.fetchall() if query.strip().upper().startswith("SELECT") else None
+
+@app.route('/')
+def index():
+    return render_template("login.html")
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = hash_password(request.form['password'])
+        try:
+            execute_query(
+                "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                (username, email, password)
+            )
+            flash('Registration successful! Please log in.', 'success')
+            return redirect(url_for('login'))
+        except psycopg2.IntegrityError:
+            flash('Username or email already exists.', 'danger')
+
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
-    google = oauth.create_client('google')  
-    redirect_uri = url_for('authorize', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-
-@app.route('/authorize')
-def authorize():
-    google = oauth.create_client('google')  
-    token = google.authorize_access_token() 
-    resp = google.get('userinfo')  
-    user_info = resp.json()
-    user = oauth.google.userinfo()  
-    session['profile'] = user_info
-    session.permanent = True  
-    return redirect('/profile')
-
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        try:
+            user = execute_query(
+                "SELECT id, password FROM users WHERE email = %s",
+                (email,)
+            )
+            if user and verify_password(user[0][1], password):
+                session['user_id'] = user[0][0]
+                session.permanent = True
+                return redirect(url_for('profile'))
+            else:
+                flash('Invalid username or password.', 'danger')
+        except Exception as e:
+            flash('Invalid username or password.', 'danger')
+    
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
-    for key in list(session.keys()):
-        session.pop(key)
-    return redirect('/')
-	
-	
-@app.route('/')
-def index():
-	return render_template("index.html")
-	
-	
+    session.pop('user_id', None)
+    return redirect(url_for('index'))
+
 @app.route('/profile')
-@login_required
 def profile():
-	name_info = dict(session)['profile']['name']
-	email = dict(session)['profile']['email']
-	pic_info =  dict(session)['profile']['picture']
-	email_ret = email.split("@")
-	#print(email)
-	#email = dict(session)['profile']['email']
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute(f"CREATE TABLE IF NOT EXISTS {email_ret[0]} ( id serial PRIMARY KEY, title VARCHAR(50) NOT NULL,date VARCHAR, tags VARCHAR [], description VARCHAR);")
-	cursor.execute(f"SELECT * FROM {email_ret[0]};")
-	todo_list = cursor.fetchall()
-	dbconn.commit()
-	return render_template("profile.html", todo_list = todo_list, email=email, pic_info=pic_info,name_info=name_info)
-	
-@app.route("/add_new")
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    user = execute_query(
+        "SELECT username, email FROM users WHERE id = %s",
+        (user_id,)
+    )[0]
+    todo_list = execute_query(
+        "SELECT * FROM todos WHERE user_id = %s",
+        (user_id,)
+    )
+    print("!!!!!",user)
+    return render_template('profile.html', user=user, todo_list=todo_list)
+
+@app.route('/add_new')
 def add_new():
-	return render_template("note.html")
-	
-	
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    return render_template("note.html")
+
 @app.route("/add", methods=["POST"])
 def todo_add_to_table():
-	email = dict(session)['profile']['email']
-	email_ret = email.split("@")
-	username, password, database, hostname, port = parse()
-	title_ret= request.form.get("title")
-	tags_ret= request.form.get("tags")
-	tags = tags_ret.split(",")
-	description_ret= request.form.get("description")
-	date = datetime.date.today()
-	
-	if len(title_ret) == 0 and len(description_ret) == 0:
-			return redirect(url_for("profile"))
-			
-	else:		
-		dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-		cursor = dbconn.cursor()
-		cursor.execute(f"""INSERT INTO {email_ret[0]} (title, date, tags, description) VALUES (%s,%s,%s,%s);""",(title_ret,date,tags,description_ret))
-		dbconn.commit()
-		return redirect(url_for("profile"))
-	
-	
-@app.route("/search", methods=["POST"])
-def todo_search_tags():
-	name_info = dict(session)['profile']['name']
-	pic_info =  dict(session)['profile']['picture']
-	email = dict(session)['profile']['email']
-	email_ret = email.split("@") 
-	tag_ret= request.form.get("search")
-	title_ret= request.form.get("title")
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute(f"SELECT * FROM {email_ret[0]};")
-	todo_list = cursor.fetchall()
-	dbconn.commit()
-	tag_list = []
-	for todo in todo_list:
-		for tag in todo[3]:
-			if tag == tag_ret:
-				tag_list.append(todo)
-	
-	return render_template("search.html", tag_list = tag_list,email=email,pic_info=pic_info,name_info=name_info)
-		
-	
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    title_ret= request.form.get("title")
+    tags_ret= request.form.get("tags")
+    tags = tags_ret.split(",")
+    description_ret= request.form.get("description")
+    date = datetime.date.today()
+
+    if len(title_ret) == 0 and len(description_ret) == 0:
+        return redirect(url_for("profile"))
+    else:
+        execute_query(
+            "INSERT INTO todos (user_id, title, date, tags, description) VALUES (%s, %s, %s, %s, %s)",
+            (session['user_id'], title_ret, date, tags, description_ret)
+        )
+        return redirect(url_for("profile"))
+
 @app.route("/search_tags/<tag>")
 def todo_search_tags_hash(tag):
-	name_info = dict(session)['profile']['name']
-	pic_info =  dict(session)['profile']['picture']
-	email = dict(session)['profile']['email']
-	email_ret = email.split("@")
-	tag_ret= request.form.get("search")
-	title_ret= request.form.get("title")
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute(f"SELECT * FROM {email_ret[0]};")
-	todo_list = cursor.fetchall()
-	dbconn.commit()
-	tag_list = []
+    return todo_search_tags(tag_ret=tag, from_click=True)
 
-	
-	for todo in todo_list:
-		for tagg in todo[3]:
-			if tagg == tag:
-				tag_list.append(todo)
-	
-	return render_template("search.html", tag_list = tag_list,pic_info=pic_info,name_info=name_info)	
-	
-	
+@app.route("/search", methods=["POST"])
+def todo_search_tags(tag_ret=None, from_click=False):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    if not from_click:
+        tag_ret = request.form.get("search")
+    
+    # Ensure a tag is provided
+    if not tag_ret:
+        return redirect(url_for('index'))  
+    user_id = session['user_id']
+    user = execute_query(
+        "SELECT username, email FROM users WHERE id = %s",
+        (user_id,)
+    )[0]
+    todo_list = execute_query(
+        "SELECT title, date, tags, description FROM todos WHERE user_id = %s",
+        (session['user_id'],)
+    )
+    tag_list = [todo for todo in todo_list if tag_ret in todo[2]]
+
+    return render_template("search.html", tag_list=tag_list, user=user)
+
+
 @app.route("/update/<int:todo_id>")
-@login_required
 def todo_update(todo_id):
-	email = dict(session)['profile']['email']
-	email_ret = email.split("@")
-	tag_ret= request.form.get("search")
-	title_ret= request.form.get("title")
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute(f"SELECT * FROM {email_ret[0]};")
-	todo_list = cursor.fetchall()
-	dbconn.commit()
-	for todo in todo_list:
-		if todo[0] == todo_id:
-			row = todo
-	
-	return render_template("update.html", row = row)
-	
-	
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    todo_list = execute_query(
+        "SELECT id, title, date, tags, description FROM todos WHERE id = %s AND user_id = %s",
+        (todo_id, session['user_id'])
+    )
+    row = todo_list[0] if todo_list else None
+    
+    return render_template("update.html", row=row)
+
 @app.route("/update_old/<int:row_id>", methods = ["POST"])
-@login_required
 def todo_update_old(row_id):
-	email = dict(session)['profile']['email']
-	email_ret = email.split("@")
-	todo_id = row_id
-	title_ret= request.form.get("title")
-	tags_ret= request.form.get("tags")
-	tags = tags_ret.split(",")
-	description_ret= request.form.get("description")
-	date = datetime.date.today()
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute(f"""UPDATE {email_ret[0]} SET title = %s WHERE id = %s;""",(title_ret,todo_id))
-	cursor.execute(f"""UPDATE {email_ret[0]} SET description = %s WHERE id = %s;""",(description_ret,todo_id))
-	cursor.execute(f"""UPDATE {email_ret[0]} SET tags = %s WHERE id = %s;""",(tags,todo_id))
-	dbconn.commit()
-	return redirect(url_for("profile"))
-	
-	
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    title_ret = request.form.get("title")
+    tags_ret = request.form.get("tags")
+    tags = tags_ret.split(",")
+    description_ret = request.form.get("description")
+
+    execute_query(
+        "UPDATE todos SET title = %s, description = %s, tags = %s WHERE id = %s AND user_id = %s",
+        (title_ret, description_ret, tags, row_id, session['user_id'])
+    )
+    return redirect(url_for("profile"))
+
 @app.route("/delete/<int:todo_id>")
 def todo_delete(todo_id):
-	email = dict(session)['profile']['email']
-	email_ret = email.split("@")
-	username, password, database, hostname, port = parse()
-	dbconn = psycopg2.connect(database = database,user = username,password = password,host = hostname,port = port)
-	cursor = dbconn.cursor()
-	cursor.execute(f"""DELETE from {email_ret[0]} WHERE id = %s;""",[todo_id])
-	dbconn.commit()
-	return redirect(url_for("profile"))
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
+    execute_query(
+        "DELETE FROM todos WHERE id = %s AND user_id = %s",
+        (todo_id, session['user_id'])
+    )
+    return redirect(url_for("profile"))
 
 if __name__ == "__main__":
-	#todo_drop_table()
-	#todo_create_table()
-	app.run(debug=True)
+    app.run(debug=True)

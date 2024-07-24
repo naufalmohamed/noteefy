@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noteefy - Register</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <style>
+        body {
+            background-color: #0A232A;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        #white {
+            color: #FAFAFA;    
+        }
+
+        #white_title {
+            color: #FAFAFA;
+            font-family: 'Special Elite', cursive;
+            margin-bottom: 20px;
+        }
+
+        #div_int {
+            background-color: #032C30;    
+        }
+
+        img {
+            border-radius: 50%;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            background-color: #032C30;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .ui.form .field input {
+            background-color: #FAFAFA;
+            border: none;
+        }
+
+        .ui.button {
+            background-color: #00B5AD;
+            color: #FAFAFA;
+        }
+
+        .ui.button:hover {
+            background-color: #009688;
+        }
+
+        /* Styling for the message div */
+        .ui.message {
+            background-color: #FAFAFA; /* Set background color */
+            color: black; /* Set text color */
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .ui.message a {
+            color: #00B5AD; /* Link color */
+        }
+
+        .ui.message a:hover {
+            color: #009688; /* Link color on hover */
+        }
+    </style>
+</head>
+<body>
+    <h1 class="ui header" id="white_title">
+        Noteefy
+    </h1>
+    <div class="login-container">
+        <h3 class="ui header" id="white">
+            Register
+        </h3>
+        <form class="ui form" action="/register" method="post">
+            <div class="field">
+                <label for="username" id="white">Username</label>
+                <input type="text" name="username" id="username" placeholder="Username" required>
+            </div>
+            <div class="field">
+                <label for="email" id="white">Email</label>
+                <input type="email" name="email" id="email" placeholder="Email" required>
+            </div>
+            <div class="field">
+                <label for="password" id="white">Password</label>
+                <input type="password" name="password" id="password" placeholder="Password" required>
+            </div>
+            <button class="ui button" type="submit">Register</button>
+        </form>
+        <div class="ui message">
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>
