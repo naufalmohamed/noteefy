@@ -105,7 +105,6 @@ def profile():
         "SELECT * FROM todos WHERE user_id = %s",
         (user_id,)
     )
-    print("!!!!!",user)
     return render_template('profile.html', user=user, todo_list=todo_list)
 
 @app.route('/add_new')
