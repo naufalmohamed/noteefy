@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .  # Path to the directory containing the Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_APP: app.py
+      FLASK_RUN_HOST: 0.0.0.0
+      SECRET_KEY: ${SECRET_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - .:/app  # Maps the current directory to /app in the container
+    networks:
+      - webnet
+
+networks:
+  webnet:
+    driver: bridge

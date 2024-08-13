@@ -2,7 +2,7 @@ import psycopg2
 from urllib.parse import urlparse
 
 def parse():
-    result = urlparse("postgres://noteefy_user:noteefy_password@localhost:5432/noteefy")
+    result = urlparse(os.getenv('DATABASE_URL'))
     username = result.username
     password = result.password
     database = result.path[1:]

@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 # app.secret_key = os.getenv("APP_SECRET_KEY")
-app.secret_key = 'SECRET_KEY'
+aapp.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SESSION_COOKIE_NAME'] = 'login-session'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)
 
@@ -23,7 +23,7 @@ def verify_password(stored_password, provided_password):
     return bytes(stored_key) == provided_key
 
 def parse():
-    result = urlparse("postgres://noteefy_user:noteefy_password@localhost:5432/noteefy")
+    result = urlparse(os.getenv('DATABASE_URL'))
     username = result.username
     password = result.password
     database = result.path[1:]
