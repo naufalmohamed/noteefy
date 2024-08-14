@@ -1,2 +1,5 @@
 # Virtual Enviroinment
 venv/
+
+# ENV File
+.env

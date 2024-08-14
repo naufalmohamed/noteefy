@@ -5,10 +5,13 @@ from urllib.parse import urlparse
 import datetime
 import hashlib
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-# app.secret_key = os.getenv("APP_SECRET_KEY")
-aapp.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.secret_key = os.getenv("SECRET_KEY")
+# app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SESSION_COOKIE_NAME'] = 'login-session'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)
 
