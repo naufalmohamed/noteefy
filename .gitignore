@@ -3,3 +3,5 @@ venv/
 
 # ENV File
 .env
+
+config.cfg

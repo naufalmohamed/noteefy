@@ -5,15 +5,17 @@ from urllib.parse import urlparse
 import datetime
 import hashlib
 import os
-from dotenv import load_dotenv
+from configparser import ConfigParser
 
-load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY")
 # app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SESSION_COOKIE_NAME'] = 'login-session'
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=5)
+
+config = ConfigParser()
+config.read('config.cfg')
+app.config['SECRET_KEY'] = config['flask']['SECRET_KEY']
 
 def hash_password(password):
     salt = os.urandom(16)
@@ -26,7 +28,7 @@ def verify_password(stored_password, provided_password):
     return bytes(stored_key) == provided_key
 
 def parse():
-    result = urlparse(os.getenv('DATABASE_URL'))
+    result = urlparse(config['flask']['DB_URL'])
     username = result.username
     password = result.password
     database = result.path[1:]

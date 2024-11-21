@@ -1,8 +1,12 @@
 import psycopg2
 from urllib.parse import urlparse
+from configparser import ConfigParser
+
+config = ConfigParser()
+config.read('config.cfg')
 
 def parse():
-    result = urlparse(os.getenv('DATABASE_URL'))
+    result = urlparse(config['flask']['DB_URL'])
     username = result.username
     password = result.password
     database = result.path[1:]

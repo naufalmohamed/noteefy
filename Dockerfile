@@ -1,26 +1,27 @@
-# Use Python 3.8.10 as the base image
-FROM python:3.8.10-slim
+# Step 1: Use the official Python image as the base image
+FROM python:3.9-slim
 
-# Set environment variables
-ENV FLASK_APP=app.py \
-    FLASK_RUN_HOST=0.0.0.0 \
-    SECRET_KEY=your-secret-key \
-    DATABASE_URL=your-database-url
-
-# Set the working directory in the container
+# Step 2: Set the working directory inside the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# Step 3: Copy the application files into the container
 COPY . /app
 
-# Install any needed packages specified in requirements.txt
+# Step 4: Install system dependencies (e.g., for psycopg2 and other libraries)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Step 5: Install the Python dependencies from the requirements file
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 5000 available to the world outside this container
+# Step 6: Expose the port that Flask will run on
 EXPOSE 5000
 
-# Define environment variable for Flask
-ENV FLASK_ENV=production
+# Step 7: Set environment variables for Flask
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
 
-# Run Flask app
+# Step 8: Run the Flask application
 CMD ["flask", "run"]
