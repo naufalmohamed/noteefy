@@ -20,20 +20,34 @@
 	
 	{% for todo in todo_list %}
 	
-	<div class = "ui segment" id="div_int">
-		<p class = "ui big header" id = "white"> {{ todo[2] }} </p><br> 
-		<pre><p id = "white">{{ todo[5] }} </p></pre><br>
-		<p id = "white">{% for tag in todo[4] %}
-		<a href = "/search_tags/{{ tag }}" id = "white">#{{ tag }}</a><br>
-		{% endfor %}</p>
+	<div class="ui segment" id="div_int" style="max-width: 100%; overflow: hidden;">
+		<p class="ui big header" id="white"> {{ todo[2] }} </p><br> 
+	  
+		<!-- Updated pre tag for word wrap -->
+		<pre style="max-width: 100%; overflow-x: auto; white-space: normal; word-wrap: break-word;">
+		  <p id="white">{{ todo[5] }} </p>
+		</pre><br>
+	  
+		<p id="white">
+		  {% for tag in todo[4] %}
+			<a href="/search_tags/{{ tag }}" id="white">#{{ tag }}</a><br>
+		  {% endfor %}
+		</p>
+	  
+		<span class="ui teal label">
+		  <i class="calendar check outline icon"></i>{{ todo[3] }}
+		</span>
 		
-		<span class = "ui teal label" ><i class="calendar check outline icon"></i>{{ todo[3] }}</span>
-		<a class = "ui inverted green button" href = "/update/{{ todo[0] }}"><center><i class="edit icon"></i></center></a>
-		
-
-
-		<a class = "ui inverted red button" href = "/delete/{{ todo[0] }}"><center><i class="trash icon"></i></center></a>
-	</div>
+		<a class="ui inverted green button" href="/update/{{ todo[0] }}">
+		  <center><i class="edit icon"></i></center>
+		</a>
+	  
+		<a class="ui inverted red button" href="/delete/{{ todo[0] }}">
+		  <center><i class="trash icon"></i></center>
+		</a>
+	  </div>
+	  
+	  
 	
 	{% endfor %}
 	
